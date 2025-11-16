@@ -7,7 +7,6 @@ import {
   Target,
   AlertOctagon,
   TrendingUp,
-  // TrendingDown,
   Globe2,
   ListFilter,
   FileWarning,
@@ -16,9 +15,8 @@ import {
 } from 'lucide-react';
 import { SankeyChart } from '@/components/SankeyChart';
 import { D3DonutChart } from '@/components/D3DonutChart';
-// import { SignatureCard } from '@/components/SignatureCard';
 import { TimelineChart } from '@/components/TimelineChart';
-import threatDataRaw from '@/data/output.json';
+import { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -41,13 +39,11 @@ type ThreatItem = {
   };
 };
 
-const threatData = threatDataRaw as ThreatItem[];
-
-// ---------- METRICS & HELPERS ----------
+// ---------- HELPER FUNCTIONS ----------
 
 const isThreat = (flag: string) => flag === 'HIGH' || flag === 'MEDIUM';
 
-const calculateMetrics = () => {
+const calculateMetrics = (threatData: ThreatItem[]) => {
   const flags = threatData.map((item) => item.output.flag);
 
   const critical = flags.filter((f) => f === 'CRITICAL').length;
@@ -60,7 +56,6 @@ const calculateMetrics = () => {
   const threatsDetected = high + medium;
   const cleanTraffic = info + low;
 
-  // anomaly: any log mentioning "anomaly score" or "unusual" / "anomalous" / "suspicious"
   const anomalyKeywords = ['anomaly score', 'anomalous', 'unusual', 'suspicious'];
   const anomalies = threatData.filter((item) =>
     anomalyKeywords.some((k) =>
@@ -68,7 +63,6 @@ const calculateMetrics = () => {
     ),
   ).length;
 
-  // compliance-ish metrics
   const ignoredAlerts = threatData.filter((item) =>
     item.output.comments.toLowerCase().includes('action was \'ignored\'') ||
     item.output.comments.toLowerCase().includes('action taken was \'ignored\'') ||
@@ -116,11 +110,7 @@ const calculateMetrics = () => {
   };
 };
 
-const metricsData = calculateMetrics();
-
-// ---------- TIMELINE (FAKE 24H DISTRIBUTION) ----------
-
-const getThreatTimelineData = () => {
+const getThreatTimelineData = (threatData: ThreatItem[]) => {
   const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
   const dataByHour = hours.map(() => ({ high: 0, medium: 0, low: 0, info: 0 }));
 
@@ -139,10 +129,6 @@ const getThreatTimelineData = () => {
   }));
 };
 
-const timelineData = getThreatTimelineData();
-
-// ---------- MITRE KILL CHAIN AGGREGATION ----------
-
 const mitrePhaseMap: Record<string, string> = {
   'Reconnaissance': 'Recon',
   'Resource Development': 'Resource Development',
@@ -160,7 +146,7 @@ const mitrePhaseMap: Record<string, string> = {
   'Impact': 'Impact',
 };
 
-const getKillChainData = () => {
+const getKillChainData = (threatData: ThreatItem[]) => {
   const phaseCounts: Record<string, number> = {};
 
   threatData.forEach((item) => {
@@ -175,19 +161,14 @@ const getKillChainData = () => {
     .sort((a, b) => b.value - a.value);
 };
 
-const killChainData = getKillChainData();
-
-// ---------- IP & GEO AGGREGATION ----------
-
 const ipv4Regex = /(\d{1,3}(?:\.\d{1,3}){3})/g;
 const sourceRegex = /source IP\s+(\d{1,3}(?:\.\d{1,3}){3})/i;
-const destRegex =
-  /destination (?:IP|system)\s+(\d{1,3}(?:\.\d{1,3}){3})/i;
+const destRegex = /destination (?:IP|system)\s+(\d{1,3}(?:\.\d{1,3}){3})/i;
 const countryRegex = /\b(in|from)\s+([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+)*)/;
 
 type RankedItem = { key: string; count: number; severity: string };
 
-const getTopSources = (limit = 5): RankedItem[] => {
+const getTopSources = (threatData: ThreatItem[], limit = 5): RankedItem[] => {
   const map: Record<string, { count: number; severityScore: number }> = {};
 
   threatData.forEach((item) => {
@@ -214,7 +195,7 @@ const getTopSources = (limit = 5): RankedItem[] => {
     .slice(0, limit);
 };
 
-const getTopDestinations = (limit = 5): RankedItem[] => {
+const getTopDestinations = (threatData: ThreatItem[], limit = 5): RankedItem[] => {
   const map: Record<string, { count: number; severityScore: number }> = {};
 
   threatData.forEach((item) => {
@@ -241,7 +222,7 @@ const getTopDestinations = (limit = 5): RankedItem[] => {
     .slice(0, limit);
 };
 
-const getGeoDistribution = (limit = 5) => {
+const getGeoDistribution = (threatData: ThreatItem[], limit = 5) => {
   const map: Record<string, number> = {};
 
   threatData.forEach((item) => {
@@ -259,43 +240,36 @@ const getGeoDistribution = (limit = 5) => {
     .slice(0, limit);
 };
 
-const topSources = getTopSources();
-const topDestinations = getTopDestinations();
-const geoData = getGeoDistribution();
-
-// ---------- ANOMALY SPOTLIGHT ----------
-
 const getAnomalyScore = (comments: string) => {
-  // extract "anomaly score (XX.YY/100)" if present
   const match = comments.match(/anomaly score\s*\((\d+(\.\d+)?)\/100\)/i);
   if (match) return parseFloat(match[1]);
   return 0;
 };
 
-const anomalySpotlight = threatData
-  .map((item, index) => ({
-    index,
-    flag: item.output.flag,
-    comments: item.output.comments,
-    confidence: item.output.confidence,
-    mitre_tactics: item.output.mitre_tactics || [],
-    anomalyScore: getAnomalyScore(item.output.comments),
-  }))
-  .filter(
-    (i) =>
-      isThreat(i.flag) &&
-      (i.comments.toLowerCase().includes('anomaly score') ||
-        i.comments.toLowerCase().includes('icmp') ||
-        i.comments.toLowerCase().includes('dns') ||
-        i.comments.toLowerCase().includes('tunneling') ||
-        i.comments.toLowerCase().includes('proxy')),
-  )
-  .sort((a, b) => b.anomalyScore - a.anomalyScore)
-  .slice(0, 5);
+const getAnomalySpotlight = (threatData: ThreatItem[]) => {
+  return threatData
+    .map((item, index) => ({
+      index,
+      flag: item.output.flag,
+      comments: item.output.comments,
+      confidence: item.output.confidence,
+      mitre_tactics: item.output.mitre_tactics || [],
+      anomalyScore: getAnomalyScore(item.output.comments),
+    }))
+    .filter(
+      (i) =>
+        isThreat(i.flag) &&
+        (i.comments.toLowerCase().includes('anomaly score') ||
+          i.comments.toLowerCase().includes('icmp') ||
+          i.comments.toLowerCase().includes('dns') ||
+          i.comments.toLowerCase().includes('tunneling') ||
+          i.comments.toLowerCase().includes('proxy')),
+    )
+    .sort((a, b) => b.anomalyScore - a.anomalyScore)
+    .slice(0, 5);
+};
 
-// ---------- CONFIDENCE ----------
-
-const getConfidenceLevels = () => {
+const getConfidenceLevels = (threatData: ThreatItem[]) => {
   const confidenceMap: Record<string, number> = {};
   threatData.forEach((item) => {
     const conf = item.output.confidence;
@@ -305,12 +279,7 @@ const getConfidenceLevels = () => {
   return Object.entries(confidenceMap).map(([name, value]) => ({ name, value }));
 };
 
-const confidenceData = getConfidenceLevels();
-const confidenceTotal = confidenceData.reduce((sum, d) => sum + d.value, 0);
-
-// ---------- SANKEY (UNCHANGED LOGIC) ----------
-
-const getSankeyData = () => {
+const getSankeyData = (threatData: ThreatItem[]) => {
   const flagToConfidence: Record<string, Record<string, number>> = {};
 
   threatData.forEach((item) => {
@@ -369,8 +338,6 @@ const getSankeyData = () => {
   return { nodes, links };
 };
 
-const sankeyData = getSankeyData();
-
 // ---------- BADGES ----------
 
 const SeverityBadge = ({ severity }: { severity: string }) => {
@@ -411,6 +378,86 @@ const ConfidenceBadge = ({ confidence }: { confidence: string }) => {
 // ---------- DASHBOARD UI ----------
 
 export default function Dashboard() {
+  const [threatData, setThreatData] = useState<ThreatItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchThreats = async () => {
+      try {
+        const response = await fetch('http://localhost:5678/webhook/get-threats');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const response_data = await response.json();
+        
+        // Handle different response formats
+        let threats: ThreatItem[] = [];
+        if (Array.isArray(response_data)) {
+          threats = response_data;
+        } else if (response_data && typeof response_data === 'object') {
+          // If data is wrapped in an object, try common property names
+          threats = response_data.data || response_data.threats || response_data.results || [];
+        }
+        
+        if (!Array.isArray(threats)) {
+          throw new Error('Invalid data format: expected an array of threats');
+        }
+        
+        console.log(`Loaded ${threats.length} threat records from API`);
+        setThreatData(threats);
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch threat data');
+        setLoading(false);
+      }
+    };
+
+    fetchThreats();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchThreats, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading threat data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">Error: {error}</div>
+          <div className="text-gray-400 text-sm">Make sure the API at http://localhost:5678/webhook/get-threats is running</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure threatData is an array before processing
+  if (!Array.isArray(threatData) || threatData.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-gray-400 text-xl">No threat data available</div>
+      </div>
+    );
+  }
+
+  const metricsData = calculateMetrics(threatData);
+  const timelineData = getThreatTimelineData(threatData);
+  const killChainData = getKillChainData(threatData);
+  const topSources = getTopSources(threatData);
+  const topDestinations = getTopDestinations(threatData);
+  const geoData = getGeoDistribution(threatData);
+  const anomalySpotlight = getAnomalySpotlight(threatData);
+  const confidenceData = getConfidenceLevels(threatData);
+  const confidenceTotal = confidenceData.reduce((sum, d) => sum + d.value, 0);
+  const sankeyData = getSankeyData(threatData);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -626,7 +673,7 @@ export default function Dashboard() {
                         fontSize: 12,
                       }}
                     />
-                    <Bar dataKey="value" />
+                    <Bar dataKey="value" fill="#8b5cf6" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -705,7 +752,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* SOURCES / DESTINATIONS / ANOMALY SPOTLIGHT + THREAT FLOW (UNCHANGED) */}
+        {/* SOURCES / DESTINATIONS / THREAT FLOW */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-6">
           {/* Top sources */}
           <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl xl:col-span-1">
@@ -761,7 +808,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Threat Flow (UNCHANGED) */}
+          {/* Threat Flow */}
           <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl xl:col-span-2">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-white">
@@ -770,7 +817,6 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="w-full" style={{ minHeight: '260px' }}>
-                {/* UNTOUCHABLE: keep SankeyChart logic and structure */}
                 <SankeyChart data={sankeyData} width={600} height={260} />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
@@ -808,7 +854,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* ANOMALY SPOTLIGHT + THREAT LIST (TOP 3) */}
+        {/* ANOMALY SPOTLIGHT + THREAT LIST */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           {/* Anomaly Spotlight */}
           <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl lg:col-span-2">
@@ -862,7 +908,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Rotating threat list (top 3) */}
+          {/* Rotating threat list */}
           <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
