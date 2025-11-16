@@ -281,7 +281,7 @@ export default function Dashboard() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 flex items-center justify-center relative">
+      <div className="min-h-screen bg-slate-950 p-4 md:p-8 flex items-center justify-center relative">
         <div className="text-center">
           <Activity className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
           <p className="text-cyan-300 text-xl font-mono neon-text">⟨ Loading threat data... ⟩</p>
@@ -293,7 +293,7 @@ export default function Dashboard() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 flex items-center justify-center relative">
+      <div className="min-h-screen bg-slate-950 p-4 md:p-8 flex items-center justify-center relative">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] pulse-neon" />
           <p className="text-red-300 text-xl mb-2 font-mono neon-text">⟨ Error loading threat data ⟩</p>
@@ -305,7 +305,7 @@ export default function Dashboard() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 relative">
+    <div className="min-h-screen bg-slate-950 p-4 md:p-8 relative">
 
       <div className="max-w-7xl mx-auto relative z-10">
 
@@ -519,15 +519,15 @@ export default function Dashboard() {
 
             </CardHeader>
 
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 flex items-center justify-center">
 
               <div className="w-full h-56">
 
                 <ResponsiveContainer width="100%" height="100%">
 
-                  <BarChart data={killChainData} layout="vertical" margin={{ left: 40 }}>
+                  <BarChart data={killChainData} layout="vertical" margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
 
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 255, 255, 0.1)" horizontal={true} vertical={false} />
 
                     <XAxis type="number" hide />
 
@@ -537,7 +537,13 @@ export default function Dashboard() {
 
                       dataKey="name"
 
-                      tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                      tick={{ fill: '#22d3ee', fontSize: 11, fontFamily: 'monospace' }}
+
+                      axisLine={{ stroke: 'rgba(0, 255, 255, 0.2)' }}
+
+                      tickLine={false}
+
+                      width={90}
 
                     />
 
@@ -545,25 +551,55 @@ export default function Dashboard() {
 
                       contentStyle={{
 
-                        backgroundColor: '#1f2937',
+                        backgroundColor: 'rgba(13, 17, 28, 0.95)',
 
-                        borderColor: '#8b5cf6',
+                        borderColor: '#22d3ee',
+
+                        borderWidth: 1,
 
                         borderRadius: 8,
 
                         fontSize: 12,
 
-                        color: '#f3f4f6',
+                        color: '#22d3ee',
+
+                        boxShadow: '0 0 20px rgba(34, 211, 238, 0.3)',
+
+                        fontFamily: 'monospace',
 
                       }}
 
-                      labelStyle={{ color: '#f3f4f6' }}
+                      labelStyle={{ color: '#22d3ee', fontWeight: 'bold' }}
 
-                      itemStyle={{ color: '#e5e7eb' }}
+                      itemStyle={{ color: '#a855f7' }}
+
+                      cursor={{ fill: 'rgba(0, 255, 255, 0.05)' }}
 
                     />
 
-                    <Bar dataKey="value" fill="#8b5cf6" />
+                    <Bar 
+
+                      dataKey="value" 
+
+                      fill="url(#colorGradient)" 
+
+                      radius={[0, 6, 6, 0]}
+
+                    />
+
+                    <defs>
+
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
+
+                        <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.8} />
+
+                        <stop offset="50%" stopColor="#a855f7" stopOpacity={0.9} />
+
+                        <stop offset="100%" stopColor="#ec4899" stopOpacity={1} />
+
+                      </linearGradient>
+
+                    </defs>
 
                   </BarChart>
 
@@ -623,7 +659,7 @@ export default function Dashboard() {
 
               </div>
 
-              <div className="mt-2 text-xs text-gray-400 space-y-1">
+              <div className="mt-2 text-xs text-cyan-300/70 font-mono space-y-1">
 
                 {confidenceData.map((d) => (
 

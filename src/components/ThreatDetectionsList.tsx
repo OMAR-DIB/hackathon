@@ -88,12 +88,12 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
   };
 
   return (
-    <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl">
-      <CardHeader className="border-b border-gray-700/50 pb-4">
-        <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-          <Filter className="w-5 h-5 text-purple-400" />
-          Threat Detections
-          <span className="text-sm text-gray-400 font-normal ml-2">
+    <Card className="holographic-card shadow-2xl">
+      <CardHeader className="border-b border-cyan-500/20 pb-4">
+        <CardTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-mono uppercase tracking-wider flex items-center gap-2">
+          <Filter className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+          ⟨ Threat Detections ⟩
+          <span className="text-sm text-cyan-400/70 font-normal ml-2">
             ({filteredThreats.length} {filteredThreats.length === 1 ? 'result' : 'results'})
           </span>
         </CardTitle>
@@ -111,7 +111,7 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-cyan-500/30 rounded-lg text-sm text-cyan-100 placeholder-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all font-mono"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                 setSelectedSeverity(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 cursor-pointer"
+              className="px-3 py-2 bg-slate-900/50 border border-cyan-500/30 rounded-lg text-sm text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 cursor-pointer font-mono"
             >
               <option value="ALL">All Severities</option>
               <option value="CRITICAL">Critical</option>
@@ -138,7 +138,7 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                 setSelectedConfidence(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 cursor-pointer"
+              className="px-3 py-2 bg-slate-900/50 border border-cyan-500/30 rounded-lg text-sm text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 cursor-pointer font-mono"
             >
               <option value="ALL">All Confidence</option>
               <option value="high">High</option>
@@ -152,7 +152,7 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
       <CardContent className="p-0">
         <div className="space-y-0 max-h-[600px] overflow-y-auto custom-scrollbar">
           {paginatedThreats.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-gray-500">
+            <div className="flex items-center justify-center h-40 text-cyan-400/50 font-mono">
               No threats match your filters
             </div>
           ) : (
@@ -163,7 +163,7 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
               return (
                 <div
                   key={globalIndex}
-                  className="border-b border-gray-700/30 hover:bg-gray-900/30 transition-colors"
+                  className="border-b border-cyan-500/10 hover:bg-slate-900/30 transition-colors"
                 >
                   <div
                     className="p-4 cursor-pointer"
@@ -181,24 +181,24 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                         )}
                       </div>
                       {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <ChevronUp className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <ChevronDown className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                       )}
                     </div>
 
                     {/* Preview */}
                     <p
-                      className={`text-sm text-gray-300 leading-relaxed ${!isExpanded ? 'line-clamp-2' : ''}`}
+                      className={`text-sm text-cyan-100 leading-relaxed font-mono ${!isExpanded ? 'line-clamp-2' : ''}`}
                       dangerouslySetInnerHTML={{ __html: highlightKeywords(item.output.comments) }}
                     />
 
                     {/* Expanded Content */}
                     {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-gray-700/50 space-y-3">
+                      <div className="mt-4 pt-4 border-t border-cyan-500/20 space-y-3">
                         {item.output.mitre_tactics && item.output.mitre_tactics.length > 0 && (
                           <div>
-                            <p className="text-xs font-semibold text-gray-400 mb-2">MITRE ATT&CK Tactics:</p>
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">MITRE ATT&CK Tactics:</p>
                             <div className="flex flex-wrap gap-2">
                               {item.output.mitre_tactics.map((tactic, idx) => (
                                 <span
@@ -213,8 +213,8 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                         )}
 
                         <div>
-                          <p className="text-xs font-semibold text-gray-400 mb-2">Recommended Action:</p>
-                          <p className="text-sm text-gray-300 bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
+                          <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">Recommended Action:</p>
+                          <p className="text-sm text-cyan-100 bg-slate-900/50 p-3 rounded-lg border border-cyan-500/30 font-mono">
                             {item.output.recommended_action}
                           </p>
                         </div>
@@ -229,25 +229,25 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-700/50">
-            <p className="text-sm text-gray-400">
+          <div className="flex items-center justify-between p-4 border-t border-cyan-500/20">
+            <p className="text-sm text-cyan-400/70 font-mono">
               Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredThreats.length)} of {filteredThreats.length}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1.5 bg-gray-900/50 border border-gray-700 rounded-md text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 bg-slate-900/50 border border-cyan-500/30 rounded-md text-sm text-cyan-100 hover:bg-cyan-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-mono"
               >
                 Previous
               </button>
-              <span className="px-3 py-1.5 text-sm text-gray-400">
+              <span className="px-3 py-1.5 text-sm text-cyan-400/70 font-mono">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1.5 bg-gray-900/50 border border-gray-700 rounded-md text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 bg-slate-900/50 border border-cyan-500/30 rounded-md text-sm text-cyan-100 hover:bg-cyan-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-mono"
               >
                 Next
               </button>
