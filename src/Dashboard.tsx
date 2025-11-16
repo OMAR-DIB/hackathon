@@ -281,10 +281,10 @@ export default function Dashboard() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 flex items-center justify-center relative">
         <div className="text-center">
-          <Activity className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
-          <p className="text-white text-xl">Loading threat data...</p>
+          <Activity className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
+          <p className="text-cyan-300 text-xl font-mono neon-text">⟨ Loading threat data... ⟩</p>
         </div>
       </div>
     );
@@ -293,11 +293,11 @@ export default function Dashboard() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 flex items-center justify-center relative">
         <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-white text-xl mb-2">Error loading threat data</p>
-          <p className="text-gray-400">{error}</p>
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] pulse-neon" />
+          <p className="text-red-300 text-xl mb-2 font-mono neon-text">⟨ Error loading threat data ⟩</p>
+          <p className="text-cyan-400/70 font-mono">{error}</p>
         </div>
       </div>
     );
@@ -305,9 +305,9 @@ export default function Dashboard() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0d111c] to-[#0a0e1a] p-4 md:p-8 relative">
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto relative z-10">
 
         {/* Header */}
 
@@ -315,21 +315,21 @@ export default function Dashboard() {
 
           <div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-2 neon-text">
 
               42Beirut x Teknologiia — SOC Wall
 
             </h1>
 
-            <p className="text-gray-400">
+            <p className="text-cyan-300/70 font-mono text-sm">
 
-              Enterprise Automated Log Enrichment &amp; Threat Intelligence Monitoring
+              ⟨ Enterprise Automated Log Enrichment &amp; Threat Intelligence Monitoring ⟩
 
             </p>
 
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <div className="flex items-center gap-2 text-xs text-cyan-400/80 font-mono cyber-border px-3 py-2 rounded bg-cyan-500/5">
 
             <ListFilter className="w-4 h-4" />
 
@@ -341,25 +341,27 @@ export default function Dashboard() {
 
         {/* TOP KPI BAR */}
 
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 md:p-6 mb-6 shadow-2xl">
+        <div className="holographic-card rounded-xl p-4 md:p-6 mb-6 shadow-2xl neon-glow relative overflow-hidden">
+
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50"></div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
 
             {/* Active Threats */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Active Threats</p>
 
-                <AlertOctagonIcon className="w-5 h-5 text-red-500 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Active Threats</p>
+                <AlertOctagonIcon className="w-8 h-8 text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] pulse-neon" />
 
               </div>
 
-              <p className="text-2xl font-bold text-red-500">{metricsData.threatsDetected}</p>
+              <p className="text-2xl font-bold text-red-400" style={{textShadow: '0 0 10px rgba(239,68,68,0.8)'}}>{metricsData.threatsDetected}</p>
 
-              <p className="text-[11px] text-gray-500 mt-1">
+              <p className="text-[11px] text-cyan-400/50 mt-1 font-mono">
 
                 HIGH + MEDIUM ({Math.round(
 
@@ -375,123 +377,123 @@ export default function Dashboard() {
 
             {/* High Severity */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">High Severity</p>
 
-                <AlertTriangle className="w-5 h-5 text-orange-500 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">High Severity</p>
+                <AlertTriangle className="w-8 h-8 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-orange-500">{metricsData.high}</p>
+              <p className="text-2xl font-bold text-orange-400" style={{textShadow: '0 0 10px rgba(251,146,60,0.8)'}}>{metricsData.high}</p>
 
             </div>
 
             {/* Medium Severity */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Medium Severity</p>
 
-                <AlertCircle className="w-5 h-5 text-yellow-500 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Medium Severity</p>
+                <AlertCircle className="w-8 h-8 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-yellow-500">{metricsData.medium}</p>
+              <p className="text-2xl font-bold text-yellow-400" style={{textShadow: '0 0 10px rgba(250,204,21,0.8)'}}>{metricsData.medium}</p>
 
             </div>
 
             {/* Anomalous Events */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Anomalous Events</p>
 
-                <Activity className="w-5 h-5 text-amber-400 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Anomalous Events</p>
+                <Activity className="w-8 h-8 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-amber-400">{metricsData.anomalies}</p>
+              <p className="text-2xl font-bold text-amber-400" style={{textShadow: '0 0 10px rgba(251,191,36,0.8)'}}>{metricsData.anomalies}</p>
 
-              <p className="text-[11px] text-gray-500 mt-1">Detected abnormal behavior</p>
+              <p className="text-[11px] text-cyan-400/50 mt-1 font-mono">Detected abnormal behavior</p>
 
             </div>
 
             {/* Total Logs */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Total Logs</p>
 
-                <Activity className="w-5 h-5 text-indigo-500 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Total Logs</p>
+                <Activity className="w-8 h-8 text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-indigo-500">{metricsData.totalLogs}</p>
+              <p className="text-2xl font-bold text-indigo-400" style={{textShadow: '0 0 10px rgba(129,140,248,0.8)'}}>{metricsData.totalLogs}</p>
 
             </div>
 
             {/* Clean Traffic */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Clean Traffic</p>
 
-                <Shield className="w-5 h-5 text-green-500 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Clean Traffic</p>
+                <Shield className="w-8 h-8 text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-green-500">{metricsData.cleanTraffic}</p>
+              <p className="text-2xl font-bold text-green-400" style={{textShadow: '0 0 10px rgba(74,222,128,0.8)'}}>{metricsData.cleanTraffic}</p>
 
             </div>
 
             {/* Compliance Score */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Compliance Score</p>
 
-                <CheckCircle2 className="w-5 h-5 text-purple-400 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Compliance Score</p>
+                <CheckCircle2 className="w-8 h-8 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-purple-400">
+              <p className="text-2xl font-bold text-purple-400" style={{textShadow: '0 0 10px rgba(192,132,252,0.8)'}}>
 
                 {metricsData.complianceScore}%
 
               </p>
 
-              <p className="text-[11px] text-gray-500 mt-1">Lower = more issues</p>
+              <p className="text-[11px] text-cyan-400/50 mt-1 font-mono">Lower = more issues</p>
 
             </div>
 
             {/* Ignored Alerts */}
 
-            <div className="text-center">
+            <div className="text-center group hover:scale-105 transition-transform duration-200">
 
-              <div className="flex items-center justify-center mb-2">
+              <p className="text-xs font-medium text-cyan-300/70 font-mono uppercase tracking-wider mb-3">Ignored Alerts</p>
 
-                <FileWarning className="w-5 h-5 text-pink-400 mr-2" />
+              <div className="flex items-center justify-center mb-3">
 
-                <p className="text-xs font-medium text-gray-400">Ignored Alerts</p>
+                <FileWarning className="w-8 h-8 text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]" />
 
               </div>
 
-              <p className="text-2xl font-bold text-pink-400">{metricsData.ignoredAlerts}</p>
+              <p className="text-2xl font-bold text-pink-400" style={{textShadow: '0 0 10px rgba(244,114,182,0.8)'}}>{metricsData.ignoredAlerts}</p>
 
-              <p className="text-[11px] text-gray-500 mt-1">Review incident handling</p>
+              <p className="text-[11px] text-cyan-400/50 mt-1 font-mono">Review incident handling</p>
 
             </div>
 
@@ -505,13 +507,13 @@ export default function Dashboard() {
 
           {/* Kill Chain */}
 
-          <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl">
+          <Card className="holographic-card shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300">
 
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 border-b border-cyan-500/20">
 
-              <CardTitle className="text-lg font-bold text-white">
+              <CardTitle className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-mono uppercase tracking-wider">
 
-                MITRE Kill Chain Activity
+                ⟨ MITRE Kill Chain Activity ⟩
 
               </CardTitle>
 
@@ -575,13 +577,13 @@ export default function Dashboard() {
 
           {/* Confidence distribution */}
 
-          <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl">
+          <Card className="holographic-card shadow-2xl hover:shadow-purple-500/20 transition-all duration-300">
 
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 border-b border-cyan-500/20">
 
-              <CardTitle className="text-lg font-bold text-white">
+              <CardTitle className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-mono uppercase tracking-wider">
 
-                Confidence Distribution
+                ⟨ Confidence Distribution ⟩
 
               </CardTitle>
 
@@ -651,13 +653,13 @@ export default function Dashboard() {
 
           {/* Threat Flow */}
 
-          <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-2xl">
+          <Card className="holographic-card shadow-2xl hover:shadow-pink-500/20 transition-all duration-300">
 
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 border-b border-cyan-500/20">
 
-              <CardTitle className="text-lg font-bold text-white">
+              <CardTitle className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-cyan-400 font-mono uppercase tracking-wider">
 
-                Threat Flow: Severity to Confidence
+                ⟨ Threat Flow: Severity to Confidence ⟩
 
               </CardTitle>
 
@@ -753,11 +755,13 @@ export default function Dashboard() {
 
         {/* Footer */}
 
-        <div className="mt-8 text-center text-sm text-gray-500">
+        <div className="mt-8 text-center text-sm text-cyan-400/50 font-mono">
 
-          <p>Built for SOC wall monitoring — React, TypeScript, Tailwind CSS &amp; shadcn/ui</p>
+          <p className="mb-1">⟨ Built for SOC wall monitoring — React, TypeScript, Tailwind CSS &amp; shadcn/ui ⟩</p>
 
-          <p className="mt-1">Powered by n8n Automation | 42Beirut x Teknologiia Hackathon 2025</p>
+          <p className="text-purple-400/50">⟨ Powered by n8n Automation | 42Beirut x Teknologiia Hackathon 2025 ⟩</p>
+
+          <div className="mt-3 w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50"></div>
 
         </div>
 
