@@ -1,6 +1,7 @@
 # SOC Analyst Automation Platform
 
-[The Show Case Video](google.com)
+[The Show Case Video]([google.com](https://drive.google.com/file/d/157nFkVTTH95mBT_K92ZevM8NZvgYmV-C/view?usp=drivesdk))
+<img width="719" height="259" alt="image" src="https://github.com/user-attachments/assets/cbc4c26f-67e6-4745-84aa-c4ebca040e55" />
 
 ## Overview
 
