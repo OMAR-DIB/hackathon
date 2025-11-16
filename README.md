@@ -1,5 +1,7 @@
 # SOC Analyst Automation Platform
 
+[The Show Case Video](google.com)
+
 ## Overview
 
 This platform automates threat intelligence analysis for Security Operations Centers (SOC) by processing firewall logs through a multi-stage enrichment and AI-powered assessment pipeline. Built for the 42Beirut vs Teknologiia hackathon, it demonstrates how workflow automation can augment security analyst capabilities while managing API costs and processing time efficiently.
