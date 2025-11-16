@@ -88,7 +88,55 @@ export default function Dashboard() {
         }
         
         const result = await response.json();
-        setThreatData(result.data || []);
+        
+        // Parse the new data format
+        const parsedData = (result.data || []).map((item: any) => {
+          try {
+            // New format: choices[0].message.content contains JSON string
+            if (item.choices?.[0]?.message?.content) {
+              const jsonText = item.choices[0].message.content
+                .replace(/```json\n?/g, '')
+                .replace(/```\n?/g, '')
+                .trim();
+              const parsed = JSON.parse(jsonText);
+              return {
+                output: {
+                  flag: parsed.flag || 'INFO',
+                  comments: parsed.comments || '',
+                  confidence: parsed.confidence || 'low',
+                  recommended_action: parsed.recommended_action || 'none',
+                  mitre_tactics: parsed.mitre_tactics || [],
+                }
+              };
+            }
+            // Alternative format: content.parts[0].text
+            if (item.content?.parts?.[0]?.text) {
+              const jsonText = item.content.parts[0].text
+                .replace(/```json\n?/g, '')
+                .replace(/```\n?/g, '')
+                .trim();
+              const parsed = JSON.parse(jsonText);
+              return {
+                output: {
+                  flag: parsed.flag || 'INFO',
+                  comments: parsed.comments || '',
+                  confidence: parsed.confidence || 'low',
+                  recommended_action: parsed.recommended_action || 'none',
+                  mitre_tactics: parsed.mitre_tactics || [],
+                }
+              };
+            }
+            // Old format: output directly
+            if (item.output) {
+              return item;
+            }
+          } catch (parseErr) {
+            console.error('Error parsing threat data JSON:', parseErr, item);
+          }
+          return null;
+        }).filter((item: any) => item !== null);
+        
+        setThreatData(parsedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch threat data');
         console.error('Error fetching threat data:', err);
@@ -107,7 +155,7 @@ export default function Dashboard() {
 
   // ---------- METRICS & HELPERS ----------
   const calculateMetrics = () => {
-    const flags = threatData.map((item) => item.output.flag);
+    const flags = threatData.map((item) => item?.output?.flag).filter(Boolean);
     const critical = flags.filter((f) => f === 'CRITICAL').length;
     const high = flags.filter((f) => f === 'HIGH').length;
     const medium = flags.filter((f) => f === 'MEDIUM').length;
@@ -120,33 +168,33 @@ export default function Dashboard() {
     const anomalyKeywords = ['anomaly score', 'anomalous', 'unusual', 'suspicious'];
     const anomalies = threatData.filter((item) =>
       anomalyKeywords.some((k) =>
-        item.output.comments.toLowerCase().includes(k.toLowerCase()),
+        item?.output?.comments?.toLowerCase().includes(k.toLowerCase()),
       ),
     ).length;
 
     const ignoredAlerts = threatData.filter((item) =>
-      item.output.comments.toLowerCase().includes('action was \'ignored\'') ||
-      item.output.comments.toLowerCase().includes('action taken was \'ignored\'') ||
-      item.output.comments.toLowerCase().includes('ignored')
+      item?.output?.comments?.toLowerCase().includes('action was \'ignored\'') ||
+      item?.output?.comments?.toLowerCase().includes('action taken was \'ignored\'') ||
+      item?.output?.comments?.toLowerCase().includes('ignored')
     ).length;
 
     const proxyBypass = threatData.filter((item) =>
-      item.output.comments.toLowerCase().includes('direct connection') ||
-      item.output.comments.toLowerCase().includes('bypassing proxy') ||
-      item.output.comments.toLowerCase().includes('without proxy')
+      item?.output?.comments?.toLowerCase().includes('direct connection') ||
+      item?.output?.comments?.toLowerCase().includes('bypassing proxy') ||
+      item?.output?.comments?.toLowerCase().includes('without proxy')
     ).length;
 
     const missingFirewallLogs = threatData.filter((item) =>
-      item.output.comments.toLowerCase().includes('firewall logs are missing') ||
-      item.output.comments.toLowerCase().includes('no log entry') ||
-      item.output.comments.toLowerCase().includes('missing entries')
+      item?.output?.comments?.toLowerCase().includes('firewall logs are missing') ||
+      item?.output?.comments?.toLowerCase().includes('no log entry') ||
+      item?.output?.comments?.toLowerCase().includes('missing entries')
     ).length;
 
     const outdatedSystems = threatData.filter((item) =>
-      item.output.comments.toLowerCase().includes('outdated browser') ||
-      item.output.comments.toLowerCase().includes('windows 98') ||
-      item.output.comments.toLowerCase().includes('ios 10.3.4') ||
-      item.output.comments.toLowerCase().includes('outdated')
+      item?.output?.comments?.toLowerCase().includes('outdated browser') ||
+      item?.output?.comments?.toLowerCase().includes('windows 98') ||
+      item?.output?.comments?.toLowerCase().includes('ios 10.3.4') ||
+      item?.output?.comments?.toLowerCase().includes('outdated')
     ).length;
 
     const complianceIssues = ignoredAlerts + proxyBypass + missingFirewallLogs + outdatedSystems;
@@ -192,7 +240,7 @@ export default function Dashboard() {
   const getKillChainData = () => {
     const phaseCounts: Record<string, number> = {};
     threatData.forEach((item) => {
-      item.output.mitre_tactics?.forEach((tactic) => {
+      item?.output?.mitre_tactics?.forEach((tactic) => {
         const phase = mitrePhaseMap[tactic] || 'Other';
         phaseCounts[phase] = (phaseCounts[phase] || 0) + 1;
       });
@@ -206,7 +254,7 @@ export default function Dashboard() {
   const getConfidenceLevels = () => {
     const confidenceMap: Record<string, number> = {};
     threatData.forEach((item) => {
-      const conf = item.output.confidence;
+      const conf = item?.output?.confidence || 'low';
       const normalized = conf.charAt(0).toUpperCase() + conf.slice(1).toLowerCase();
       confidenceMap[normalized] = (confidenceMap[normalized] || 0) + 1;
     });
@@ -217,8 +265,8 @@ export default function Dashboard() {
   const getSankeyData = () => {
     const flagToConfidence: Record<string, Record<string, number>> = {};
     threatData.forEach((item) => {
-      const flag = item.output.flag;
-      const conf = item.output.confidence;
+      const flag = item?.output?.flag || 'INFO';
+      const conf = item?.output?.confidence || 'low';
       const normalized = conf.charAt(0).toUpperCase() + conf.slice(1).toLowerCase();
       if (!flagToConfidence[flag]) {
         flagToConfidence[flag] = {};
@@ -783,7 +831,7 @@ export default function Dashboard() {
 
           <ThreatDetectionsList
 
-            threats={threatData.filter(item => item.output.flag !== 'INFO')}
+            threats={threatData.filter(item => item?.output?.flag !== 'INFO')}
 
           />
 
