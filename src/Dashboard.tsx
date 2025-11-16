@@ -52,6 +52,8 @@ import {
 
 type ThreatItem = {
 
+  // Core threat analysis
+
   output: {
 
     flag: string;
@@ -64,7 +66,95 @@ type ThreatItem = {
 
     mitre_tactics: string[];
 
+    model_agreement?: string;
+
+    consensus_reasoning?: string;
+
   };
+
+  // Network data
+
+  sourceIP?: string;
+
+  destIP?: string;
+
+  sourcePort?: string;
+
+  destPort?: string;
+
+  protocol?: string;
+
+  timestamp?: string;
+
+  trafficType?: string;
+
+  packetLength?: string;
+
+  // Geolocation
+
+  geo?: {
+
+    city?: string;
+
+    region?: string;
+
+    country?: string;
+
+    country_name?: string;
+
+    latitude?: number;
+
+    longitude?: number;
+
+    timezone?: string;
+
+    asn?: string;
+
+    org?: string;
+
+  };
+
+  // Threat intelligence
+
+  threat?: {
+
+    reputation?: number;
+
+    indicator?: string;
+
+    asn?: string;
+
+    whois?: string;
+
+  };
+
+  // Security details
+
+  attackType?: string;
+
+  attackSignature?: string;
+
+  severityLevel?: string;
+
+  malwareIndicators?: string;
+
+  anomalyScore?: string;
+
+  staticRiskScore?: number;
+
+  riskClassification?: string;
+
+  actionTaken?: string;
+
+  // Context
+
+  userInfo?: string;
+
+  deviceInfo?: string;
+
+  networkSegment?: string;
+
+  payloadData?: string;
 
 };
 
@@ -92,44 +182,83 @@ export default function Dashboard() {
         // Parse the new data format
         const parsedData = (result.data || []).map((item: any) => {
           try {
+            let analysisData: any = {};
+            
             // New format: choices[0].message.content contains JSON string
             if (item.choices?.[0]?.message?.content) {
               const jsonText = item.choices[0].message.content
                 .replace(/```json\n?/g, '')
                 .replace(/```\n?/g, '')
                 .trim();
-              const parsed = JSON.parse(jsonText);
-              return {
-                output: {
-                  flag: parsed.flag || 'INFO',
-                  comments: parsed.comments || '',
-                  confidence: parsed.confidence || 'low',
-                  recommended_action: parsed.recommended_action || 'none',
-                  mitre_tactics: parsed.mitre_tactics || [],
-                }
-              };
+              analysisData = JSON.parse(jsonText);
             }
             // Alternative format: content.parts[0].text
-            if (item.content?.parts?.[0]?.text) {
+            else if (item.content?.parts?.[0]?.text) {
               const jsonText = item.content.parts[0].text
                 .replace(/```json\n?/g, '')
                 .replace(/```\n?/g, '')
                 .trim();
-              const parsed = JSON.parse(jsonText);
-              return {
-                output: {
-                  flag: parsed.flag || 'INFO',
-                  comments: parsed.comments || '',
-                  confidence: parsed.confidence || 'low',
-                  recommended_action: parsed.recommended_action || 'none',
-                  mitre_tactics: parsed.mitre_tactics || [],
-                }
-              };
+              analysisData = JSON.parse(jsonText);
             }
             // Old format: output directly
-            if (item.output) {
+            else if (item.output) {
               return item;
             }
+
+            // Extract all available data
+            return {
+              output: {
+                flag: analysisData.flag || 'INFO',
+                comments: analysisData.comments || '',
+                confidence: analysisData.confidence || 'low',
+                recommended_action: analysisData.recommended_action || 'none',
+                mitre_tactics: analysisData.mitre_tactics || [],
+                model_agreement: analysisData.model_agreement,
+                consensus_reasoning: analysisData.consensus_reasoning,
+              },
+              // Network data
+              sourceIP: item.sourceIP_1 || item['Source IP Address_1'],
+              destIP: item['Destination IP Address_1'],
+              sourcePort: item['Source Port_1'],
+              destPort: item['Destination Port_1'],
+              protocol: item.Protocol_1,
+              timestamp: item.Timestamp_1,
+              trafficType: item['Traffic Type_1'],
+              packetLength: item['Packet Length_1'],
+              // Geolocation
+              geo: item.geo_1 ? {
+                city: item.geo_1.city,
+                region: item.geo_1.region,
+                country: item.geo_1.country_code,
+                country_name: item.geo_1.country_name,
+                latitude: item.geo_1.latitude,
+                longitude: item.geo_1.longitude,
+                timezone: item.geo_1.timezone,
+                asn: item.geo_1.asn,
+                org: item.geo_1.org,
+              } : undefined,
+              // Threat intelligence
+              threat: item.threat_1 ? {
+                reputation: item.threat_1.reputation,
+                indicator: item.threat_1.indicator,
+                asn: item.threat_1.asn,
+                whois: item.threat_1.whois,
+              } : undefined,
+              // Security details
+              attackType: item['Attack Type_1'],
+              attackSignature: item['Attack Signature_1'],
+              severityLevel: item['Severity Level_1'],
+              malwareIndicators: item['Malware Indicators_1'],
+              anomalyScore: item['Anomaly Scores_1'],
+              staticRiskScore: item.static_risk_score_1,
+              riskClassification: item.risk_classification_1,
+              actionTaken: item['Action Taken_1'],
+              // Context
+              userInfo: item['User Information_1'],
+              deviceInfo: item['Device Information_1'],
+              networkSegment: item['Network Segment_1'],
+              payloadData: item['Payload Data_1'],
+            };
           } catch (parseErr) {
             console.error('Error parsing threat data JSON:', parseErr, item);
           }

@@ -9,7 +9,46 @@ interface ThreatItem {
     confidence: string;
     recommended_action: string;
     mitre_tactics: string[];
+    model_agreement?: string;
+    consensus_reasoning?: string;
   };
+  sourceIP?: string;
+  destIP?: string;
+  sourcePort?: string;
+  destPort?: string;
+  protocol?: string;
+  timestamp?: string;
+  trafficType?: string;
+  packetLength?: string;
+  geo?: {
+    city?: string;
+    region?: string;
+    country?: string;
+    country_name?: string;
+    latitude?: number;
+    longitude?: number;
+    timezone?: string;
+    asn?: string;
+    org?: string;
+  };
+  threat?: {
+    reputation?: number;
+    indicator?: string;
+    asn?: string;
+    whois?: string;
+  };
+  attackType?: string;
+  attackSignature?: string;
+  severityLevel?: string;
+  malwareIndicators?: string;
+  anomalyScore?: string;
+  staticRiskScore?: number;
+  riskClassification?: string;
+  actionTaken?: string;
+  userInfo?: string;
+  deviceInfo?: string;
+  networkSegment?: string;
+  payloadData?: string;
 }
 
 interface ThreatDetectionsListProps {
@@ -195,10 +234,72 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
 
                     {/* Expanded Content */}
                     {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-cyan-500/20 space-y-3">
+                      <div className="mt-4 pt-4 border-t border-cyan-500/20 space-y-4">
+                        {/* Network Information */}
+                        {(item.sourceIP || item.destIP || item.protocol) && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-cyan-500/20">
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ Network Details ⟩</p>
+                            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                              {item.timestamp && <div><span className="text-cyan-400/60">Timestamp:</span> <span className="text-cyan-100">{item.timestamp}</span></div>}
+                              {item.sourceIP && <div><span className="text-cyan-400/60">Source IP:</span> <span className="text-cyan-100">{item.sourceIP}</span></div>}
+                              {item.destIP && <div><span className="text-cyan-400/60">Dest IP:</span> <span className="text-cyan-100">{item.destIP}</span></div>}
+                              {item.sourcePort && <div><span className="text-cyan-400/60">Source Port:</span> <span className="text-cyan-100">{item.sourcePort}</span></div>}
+                              {item.destPort && <div><span className="text-cyan-400/60">Dest Port:</span> <span className="text-cyan-100">{item.destPort}</span></div>}
+                              {item.protocol && <div><span className="text-cyan-400/60">Protocol:</span> <span className="text-purple-300">{item.protocol}</span></div>}
+                              {item.trafficType && <div><span className="text-cyan-400/60">Traffic Type:</span> <span className="text-purple-300">{item.trafficType}</span></div>}
+                              {item.packetLength && <div><span className="text-cyan-400/60">Packet Length:</span> <span className="text-cyan-100">{item.packetLength}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Geolocation */}
+                        {item.geo && (item.geo.city || item.geo.country_name) && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-cyan-500/20">
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ Geolocation ⟩</p>
+                            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                              {item.geo.city && <div><span className="text-cyan-400/60">City:</span> <span className="text-cyan-100">{item.geo.city}</span></div>}
+                              {item.geo.region && <div><span className="text-cyan-400/60">Region:</span> <span className="text-cyan-100">{item.geo.region}</span></div>}
+                              {item.geo.country_name && <div><span className="text-cyan-400/60">Country:</span> <span className="text-cyan-100">{item.geo.country_name} ({item.geo.country})</span></div>}
+                              {item.geo.timezone && <div><span className="text-cyan-400/60">Timezone:</span> <span className="text-cyan-100">{item.geo.timezone}</span></div>}
+                              {item.geo.asn && <div><span className="text-cyan-400/60">ASN:</span> <span className="text-cyan-100">{item.geo.asn}</span></div>}
+                              {item.geo.org && <div className="col-span-2"><span className="text-cyan-400/60">Organization:</span> <span className="text-cyan-100">{item.geo.org}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Security Analysis */}
+                        {(item.staticRiskScore || item.anomalyScore || item.attackType) && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-red-500/20">
+                            <p className="text-xs font-semibold text-red-400/70 mb-2 font-mono uppercase">⟨ Security Analysis ⟩</p>
+                            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                              {item.staticRiskScore && <div><span className="text-cyan-400/60">Risk Score:</span> <span className="text-red-400 font-bold">{item.staticRiskScore}/100</span></div>}
+                              {item.riskClassification && <div><span className="text-cyan-400/60">Classification:</span> <span className="text-orange-400">{item.riskClassification}</span></div>}
+                              {item.anomalyScore && <div><span className="text-cyan-400/60">Anomaly Score:</span> <span className="text-yellow-400">{item.anomalyScore}</span></div>}
+                              {item.attackType && <div><span className="text-cyan-400/60">Attack Type:</span> <span className="text-red-300">{item.attackType}</span></div>}
+                              {item.attackSignature && <div><span className="text-cyan-400/60">Signature:</span> <span className="text-red-300">{item.attackSignature}</span></div>}
+                              {item.malwareIndicators && <div><span className="text-cyan-400/60">Malware:</span> <span className="text-red-400">{item.malwareIndicators}</span></div>}
+                              {item.severityLevel && <div><span className="text-cyan-400/60">Severity Level:</span> <span className="text-orange-300">{item.severityLevel}</span></div>}
+                              {item.actionTaken && <div><span className="text-cyan-400/60">Action Taken:</span> <span className="text-green-300">{item.actionTaken}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Threat Intelligence */}
+                        {item.threat && (item.threat.reputation !== undefined || item.threat.asn) && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-purple-500/20">
+                            <p className="text-xs font-semibold text-purple-400/70 mb-2 font-mono uppercase">⟨ Threat Intelligence ⟩</p>
+                            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                              {item.threat.reputation !== undefined && <div><span className="text-cyan-400/60">Reputation:</span> <span className="text-cyan-100">{item.threat.reputation}</span></div>}
+                              {item.threat.indicator && <div><span className="text-cyan-400/60">Indicator:</span> <span className="text-cyan-100">{item.threat.indicator}</span></div>}
+                              {item.threat.asn && <div className="col-span-2"><span className="text-cyan-400/60">ASN:</span> <span className="text-cyan-100">{item.threat.asn}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* MITRE ATT&CK Tactics */}
                         {item.output.mitre_tactics && item.output.mitre_tactics.length > 0 && (
                           <div>
-                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">MITRE ATT&CK Tactics:</p>
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ MITRE ATT&CK Tactics ⟩</p>
                             <div className="flex flex-wrap gap-2">
                               {item.output.mitre_tactics.map((tactic, idx) => (
                                 <span
@@ -212,9 +313,45 @@ export const ThreatDetectionsList = ({ threats }: ThreatDetectionsListProps) => 
                           </div>
                         )}
 
-                        <div>
-                          <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">Recommended Action:</p>
-                          <p className="text-sm text-cyan-100 bg-slate-900/50 p-3 rounded-lg border border-cyan-500/30 font-mono">
+                        {/* User Context */}
+                        {(item.userInfo || item.deviceInfo || item.networkSegment) && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-cyan-500/20">
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ User Context ⟩</p>
+                            <div className="space-y-1 text-xs font-mono">
+                              {item.userInfo && <div><span className="text-cyan-400/60">User:</span> <span className="text-cyan-100">{item.userInfo}</span></div>}
+                              {item.networkSegment && <div><span className="text-cyan-400/60">Network Segment:</span> <span className="text-cyan-100">{item.networkSegment}</span></div>}
+                              {item.deviceInfo && <div><span className="text-cyan-400/60">Device:</span> <span className="text-cyan-100 text-[10px]">{item.deviceInfo}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Payload Data */}
+                        {item.payloadData && (
+                          <div className="bg-slate-900/50 p-3 rounded-lg border border-cyan-500/20">
+                            <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ Payload Data ⟩</p>
+                            <p className="text-xs text-cyan-100/70 font-mono leading-relaxed whitespace-pre-wrap">{item.payloadData}</p>
+                          </div>
+                        )}
+
+                        {/* AI Analysis */}
+                        {item.output.consensus_reasoning && (
+                          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 p-3 rounded-lg border border-purple-500/30">
+                            <p className="text-xs font-semibold text-purple-400/70 mb-2 font-mono uppercase">⟨ AI Consensus Analysis ⟩</p>
+                            {item.output.model_agreement && (
+                              <div className="mb-2">
+                                <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded border border-purple-500/40">
+                                  Agreement: {item.output.model_agreement}
+                                </span>
+                              </div>
+                            )}
+                            <p className="text-xs text-purple-100/80 font-mono leading-relaxed">{item.output.consensus_reasoning}</p>
+                          </div>
+                        )}
+
+                        {/* Recommended Action */}
+                        <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 p-3 rounded-lg border border-cyan-500/30">
+                          <p className="text-xs font-semibold text-cyan-400/70 mb-2 font-mono uppercase">⟨ Recommended Action ⟩</p>
+                          <p className="text-sm text-cyan-100 font-mono font-semibold">
                             {item.output.recommended_action}
                           </p>
                         </div>
